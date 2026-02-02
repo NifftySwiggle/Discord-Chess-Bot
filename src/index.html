@@ -1,0 +1,26 @@
+<!-- Created by Niffty Swiggle -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chess Board</title>
+  <link rel="stylesheet" href="../node_modules/chessboardjs/www/releases/0.1.0/css/chessboard-0.1.0.min.css">
+  <style>
+    .board-theme-default { background: linear-gradient(to bottom, #f0d9b5, #b58863); }
+    .board-theme-blue { background: linear-gradient(to bottom, #b3cde0, #6497b1); }
+    .board-theme-wood { background: linear-gradient(to bottom, #8b5a2b, #4a3728); }
+    .unicode-piece { font-size: 24px; display: flex; justify-content: center; align-items: center; height: 100%; }
+  </style>
+</head>
+<body>
+  <div id="board" style="width: 400px;"></div>
+  <script src="../node_modules/chessboardjs/www/js/jquery-1.10.1.min.js"></script>
+  <script src="../node_modules/chessboardjs/www/releases/0.1.0/js/chessboard-0.1.0.min.js"></script>
+  <script>
+    // Board will be initialized by Puppeteer
+    window.initBoard = function(fen, theme) {
+      document.getElementById('board').className = 'board-theme-' + theme;
+      return ChessBoard('board', { position: fen });
+    };
+  </script>
+</body>
+</html>
