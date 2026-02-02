@@ -19,6 +19,3 @@ Discord ChessBot is a feature-rich Discord bot that allows users to play chess g
 
 ## Deployment
 Supports deployment on Render and other Node.js hosting platforms. Use environment variables for secrets.
-
-## License
-MIT License
