@@ -1,0 +1,70 @@
+{
+  "items": [
+    {
+      "name": "Chess Master Role",
+      "cost": 500,
+      "type": "role",
+      "roleId": "1412690336899141682"
+    },
+    {
+      "name": "Grandmaster Role",
+      "cost": 5000,
+      "type": "role",
+      "roleId": "1412690773324857465"
+    },
+    {
+      "name": "Blue Board",
+      "cost": 200,
+      "type": "boardTheme",
+      "theme": "blue"
+    },
+    {
+      "name": "Wooden Board",
+      "cost": 200,
+      "type": "boardTheme",
+      "theme": "wood"
+    },
+    {
+      "name": "Green Board",
+      "cost": 200,
+      "type": "boardTheme",
+      "theme": "green"
+    },
+    {
+      "name": "Purple Board",
+      "cost": 250,
+      "type": "boardTheme",
+      "theme": "purple"
+    },
+    {
+      "name": "Red Board",
+      "cost": 250,
+      "type": "boardTheme",
+      "theme": "red"
+    },
+    {
+      "name": "Marble Board",
+      "cost": 300,
+      "type": "boardTheme",
+      "theme": "marble"
+    },
+    {
+      "name": "Neon Board",
+      "cost": 500,
+      "type": "boardTheme",
+      "theme": "neon"
+    },
+    {
+      "name": "Standard Pieces",
+      "cost": 150,
+      "type": "pieceTheme",
+      "theme": "standard"
+    },
+    {
+      "name": "Origins Pieces",
+      "cost": 10000,
+      "type": "pieceTheme",
+      "theme": "origins"
+    }
+  ]
+}
