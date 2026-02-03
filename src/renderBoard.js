@@ -1,15 +1,12 @@
-const puppeteer = require('puppeteer');
+const { chromium } = require('playwright');
 const fs = require('fs').promises;
 const path = require('path');
 const os = require('os');
 const { getProfile } = require('./profiles');
 
 async function renderBoard(fen, userId) {
-  const chromePath = puppeteer.executablePath();
-  console.log('Puppeteer Chrome path:', chromePath);
-  const browser = await puppeteer.launch({
+  const browser = await chromium.launch({
     headless: true,
-    executablePath: chromePath,
     args: ['--no-sandbox', '--disable-setuid-sandbox']
   });
   try {
@@ -264,9 +261,8 @@ async function renderBoard(fen, userId) {
       throw new Error('Board element not found');
     }
     
-    const screenshot = await boardElement.screenshot({ 
-      type: 'png',
-      encoding: 'binary'
+    const screenshot = await boardElement.screenshot({
+      type: 'png'
     });
     
     if (!screenshot) {
