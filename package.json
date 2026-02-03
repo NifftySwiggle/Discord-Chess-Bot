@@ -4,7 +4,8 @@
   "main": "src/bot.js",
   "scripts": {
     "start": "node src/bot.js",
-    "build": "echo 'No build step required'"
+    "build": "echo 'No build step required'",
+    "postinstall": "npx playwright install"
   },
   "dependencies": {
     "chess.js": "^0.13.4",
