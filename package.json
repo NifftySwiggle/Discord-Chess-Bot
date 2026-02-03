@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "src/bot.js",
   "scripts": {
-    "start": "node src/bot.js"
+    "start": "node src/bot.js",
+    "build": "echo 'No build step required'"
+    
   },
   "dependencies": {
     "chess.js": "^0.13.4",
