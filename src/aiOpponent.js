@@ -34,4 +34,4 @@ function makeAIMove(game) {
   return selectedMove;
 }
 
-module.exports = { makeAIMove };
+export { makeAIMove };
