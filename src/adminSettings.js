@@ -62,4 +62,4 @@ async function getArchiveChannel() {
   return adminData.archiveChannelId;
 }
 
-module.exports = { isAdmin, addAdmin, removeAdmin, listAdmins, setArchiveChannel, getArchiveChannel };
+export { isAdmin, addAdmin, removeAdmin, listAdmins, setArchiveChannel, getArchiveChannel };
