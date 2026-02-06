@@ -81,4 +81,4 @@ async function getAllProfiles() {
   return await loadProfiles();
 }
 
-module.exports = { getProfile, updateProfile, addGold, getAllProfiles };
+export { getProfile, updateProfile, addGold, getAllProfiles };
