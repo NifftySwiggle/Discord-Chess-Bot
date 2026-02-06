@@ -1,6 +1,7 @@
-const { Chess } = require('chess.js');
-const { renderBoard } = require('./renderBoard');
-const { getProfile } = require('./profiles');
+
+import { Chess } from 'chess.js';
+import { renderBoard } from './renderBoard.js';
+import { getProfile } from './profiles.js';
 
 async function startGame(white, black, threadId) {
   const chess = new Chess();
