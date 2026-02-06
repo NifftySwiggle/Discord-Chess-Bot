@@ -1,8 +1,13 @@
-const { chromium } = require('playwright');
-const fs = require('fs').promises;
-const path = require('path');
-const os = require('os');
-const { getProfile } = require('./profiles');
+
+import { chromium } from 'playwright';
+import fs from 'fs/promises';
+import path from 'path';
+import os from 'os';
+import { getProfile } from './profiles.js';
+
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 async function renderBoard(fen, userId) {
   const browser = await chromium.launch({
