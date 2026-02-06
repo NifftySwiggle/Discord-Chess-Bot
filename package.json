@@ -1,6 +1,7 @@
 {
   "name": "discord-chess-bot",
   "version": "1.0.0",
+  "type": "module",
   "main": "src/bot.js",
   "scripts": {
     "build": "echo 'No build step required'",
