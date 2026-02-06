@@ -213,4 +213,4 @@ async function getStandings(interaction) {
   return `**Tournament ${activeTournament.id} Standings**\nRound ${activeTournament.currentRound}/${activeTournament.rounds}\n${standings || 'No standings yet!'}`;
 }
 
-module.exports = { createTournament, joinTournament, startTournament, getStandings };
+export { createTournament, joinTournament, startTournament, getStandings };
