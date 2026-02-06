@@ -1,4 +1,4 @@
-const { Chess } = require('chess.js');
+import { Chess } from 'chess.js';
 
 /**
  * Simple AI that makes random legal moves
