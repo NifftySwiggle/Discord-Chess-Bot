@@ -50,4 +50,4 @@ async function surrender(game, userId) {
   return { winner, surrendered: true };
 }
 
-module.exports = { startGame, makeMove, offerDraw, acceptDraw, declineDraw, surrender };
+export { startGame, makeMove, offerDraw, acceptDraw, declineDraw, surrender };
