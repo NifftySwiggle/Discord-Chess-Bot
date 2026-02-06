@@ -108,4 +108,4 @@ async function buyItem(user, guild, itemName) {
   }
 }
 
-module.exports = { getShopItems, buyItem, addShopItem, removeShopItem };
+export { getShopItems, buyItem, addShopItem, removeShopItem };
