@@ -278,4 +278,4 @@ async function renderBoard(fen, userId) {
   }
 }
 
-module.exports = { renderBoard };
+export { renderBoard };
