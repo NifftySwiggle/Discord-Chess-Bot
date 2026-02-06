@@ -1,13 +1,15 @@
-const { Client, GatewayIntentBits, ButtonBuilder, ButtonStyle, ActionRowBuilder, SlashCommandBuilder, ChannelType, InteractionResponseType, StringSelectMenuBuilder } = require('discord.js');
-const { Chess } = require('chess.js');
-const { renderBoard } = require('./renderBoard');
-const { getProfile, updateProfile, addGold, getAllProfiles } = require('./profiles');
-const { startGame, makeMove, offerDraw, acceptDraw, declineDraw, surrender } = require('./chessGame');
-const { getShopItems, buyItem, addShopItem, removeShopItem } = require('./shop');
-const { createTournament, joinTournament, startTournament, getStandings } = require('./tournaments');
-const { makeAIMove } = require('./aiOpponent');
-const { isAdmin, addAdmin, removeAdmin, listAdmins, setArchiveChannel, getArchiveChannel } = require('./adminSettings');
-require('dotenv').config();
+
+import { Client, GatewayIntentBits, ButtonBuilder, ButtonStyle, ActionRowBuilder, SlashCommandBuilder, ChannelType, InteractionResponseType, StringSelectMenuBuilder } from 'discord.js';
+import { Chess } from 'chess.js';
+import { renderBoard } from './renderBoard.js';
+import { getProfile, updateProfile, addGold, getAllProfiles } from './profiles.js';
+import { startGame, makeMove, offerDraw, acceptDraw, declineDraw, surrender } from './chessGame.js';
+import { getShopItems, buyItem, addShopItem, removeShopItem } from './shop.js';
+import { createTournament, joinTournament, startTournament, getStandings } from './tournaments.js';
+import { makeAIMove } from './aiOpponent.js';
+import { isAdmin, addAdmin, removeAdmin, listAdmins, setArchiveChannel, getArchiveChannel } from './adminSettings.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const client = new Client({
   intents: [
