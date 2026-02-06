@@ -1,12 +1,17 @@
-const fs = require('fs').promises;
-const path = require('path');
-const { startGame, makeMove, offerDraw, acceptDraw, declineDraw, surrender } = require('./chessGame');
-const { renderBoard } = require('./renderBoard');
-const { addGold } = require('./profiles');
-const { isAdmin } = require('./adminSettings');
-const { ChannelType, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 
-const tournamentsFile = path.join(__dirname, 'tournaments.json');
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+import { startGame, makeMove, offerDraw, acceptDraw, declineDraw, surrender } from './chessGame.js';
+import { renderBoard } from './renderBoard.js';
+import { addGold } from './profiles.js';
+import { isAdmin } from './adminSettings.js';
+import { ChannelType, ButtonBuilder, ButtonStyle, ActionRowBuilder } from 'discord.js';
+
+const tournamentsFile = path.join(__dirname, '../tournaments.json');
 
 async function loadTournaments() {
   try {
