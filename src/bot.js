@@ -218,7 +218,11 @@ client.once('clientReady', () => {
     new SlashCommandBuilder()
       .setName('clear-archives')
       .setDescription('Clear archived games (Admin only)')
-      .addIntegerOption(option => option.setName('count').setDescription('Number of messages to clear (default: all)').setMinValue(1))
+      .addIntegerOption(option => option.setName('count').setDescription('Number of messages to clear (default: all)').setMinValue(1)),
+    new SlashCommandBuilder()
+      .setName('daily')
+      .setDescription('Claim your daily gold and streak reward'),
+    
 
 
 
@@ -232,48 +236,54 @@ client.on('interactionCreate', async interaction => {
 
   if (interaction.isCommand()) {
     const { commandName, user, options } = interaction;
+    
+    if (commandName === 'daily') {
+      await interaction.deferReply({ ephemeral: true });
+      const profile = await getProfile(user.id);
+      const today = new Date();
+      const lastDaily = profile.lastDaily ? new Date(profile.lastDaily) : null;
+      let streak = profile.dailyStreak || 0;
+      let reward = 5;
+      let message = '';
+
+      // Already claimed today
+      if (lastDaily && lastDaily.toDateString() === today.toDateString()) {
+        message = `You have already claimed your daily gold today!\n\nCurrent streak: **${streak} days**.`;
+        await interaction.followUp({ content: message, ephemeral: true });
+        return;
+      }
+
+      // Check if yesterday was last claim
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
+      if (lastDaily && lastDaily.toDateString() === yesterday.toDateString()) {
+        streak += 1;
+      } else {
+        streak = 1;
+      }
+
+      // 7th day bonus: 5x points
+      if (streak === 7) {
+        reward *= 5;
+        message = `🔥 **7-Day Streak!** You earned a bonus!`;
+      } else {
+        message = `You claimed your daily reward!`;
+      }
+
+      await updateProfile(user.id, {
+        gold: (profile.gold || 0) + reward,
+        lastDaily: today.toISOString(),
+        dailyStreak: streak === 7 ? 0 : streak // reset after 7th day
+      });
+
+      await interaction.followUp({
+        content: `${message}\nYou received **${reward} gold**.\nStreak: **${streak === 7 ? 7 : streak} days**.\n${streak === 7 ? 'Streak reset! Start again tomorrow.' : 'Keep your streak going for a big bonus on day 7!'}`,
+        ephemeral: true
+      });
+      return;
+    }
 
     if (commandName === 'chess-challenge') {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
       const opponent = options.getUser('opponent');
       if (opponent.id === user.id) {
         await interaction.reply({ content: 'You cannot challenge yourself!', flags: InteractionResponseType.Ephemeral });
@@ -1423,4 +1433,4 @@ http.createServer((req, res) => {
   res.end('Discord Chess Bot is running.');
 }).listen(PORT, () => {
   console.log(`HTTP server listening on port ${PORT}`);
-});     
+});
