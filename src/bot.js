@@ -1,4 +1,3 @@
-
 import { Client, GatewayIntentBits, ButtonBuilder, ButtonStyle, ActionRowBuilder, SlashCommandBuilder, ChannelType, InteractionResponseType, StringSelectMenuBuilder } from 'discord.js';
 import { Chess } from 'chess.js';
 import { renderBoard } from './renderBoard.js';
@@ -28,7 +27,7 @@ const openGames = new Map(); // Store open games waiting for opponents
 function getMovablePieces(chess, userId, game) {
   const moves = chess.moves({ verbose: true });
   const pieces = new Map(); // Map of piece type -> array of from squares
-  
+
   moves.forEach(move => {
     const pieceKey = move.piece.toUpperCase();
     if (!pieces.has(pieceKey)) {
@@ -36,7 +35,7 @@ function getMovablePieces(chess, userId, game) {
     }
     pieces.get(pieceKey).add(move.from);
   });
-  
+
   return pieces;
 }
 
@@ -50,7 +49,7 @@ function createPieceButtons(pieces) {
     'Q': '♛ Queen',
     'K': '♚ King'
   };
-  
+
   const buttons = [];
   for (const [piece, squares] of pieces.entries()) {
     if (squares.size > 0) {
@@ -60,7 +59,7 @@ function createPieceButtons(pieces) {
         .setStyle(ButtonStyle.Primary));
     }
   }
-  
+
   return buttons;
 }
 
@@ -70,7 +69,7 @@ function createMoveButtonsForPiece(chess, pieceType, fromSquares) {
   const pieceMoves = moves.filter(move => 
     move.piece.toUpperCase() === pieceType && fromSquares.has(move.from)
   );
-  
+
   return pieceMoves.map(move => new ButtonBuilder()
     .setCustomId(`move_${move.from}_${move.to}`)
     .setLabel(`${move.from} → ${move.to}${move.captured ? ' ✕' : ''}`)
@@ -81,10 +80,10 @@ function createMoveButtonsForPiece(chess, pieceType, fromSquares) {
 async function archiveAndDeleteThread(thread, guild, gameInfo) {
   try {
     const archiveChannelId = await getArchiveChannel();
-    
+
     if (archiveChannelId) {
       const archiveChannel = await guild.channels.fetch(archiveChannelId);
-      
+
       if (archiveChannel) {
         // Create archive message
         let archiveMessage = `**🏁 Game Finished**\n`;
@@ -92,14 +91,14 @@ async function archiveAndDeleteThread(thread, guild, gameInfo) {
         archiveMessage += `**Result:** ${gameInfo.result}\n`;
         archiveMessage += `**Date:** ${new Date().toLocaleString()}\n`;
         archiveMessage += `**Thread:** ${thread.name}`;
-        
+
         await archiveChannel.send(archiveMessage);
       }
     }
-    
+
     // Notify players that thread will be deleted
     await thread.send('⏱️ This thread will be automatically deleted in 1 minute.');
-    
+
     // Delete thread after 1 minute
     setTimeout(async () => {
       try {
@@ -219,10 +218,10 @@ client.once('clientReady', () => {
     new SlashCommandBuilder()
       .setName('clear-archives')
       .setDescription('Clear archived games (Admin only)')
-      .addIntegerOption(option => option.setName('count').setDescription('Number of messages to clear (default: all)').setMinValue(1)),
-    new SlashCommandBuilder()
-      .setName('daily')
-      .setDescription('Claim your daily gold and streak reward')
+      .addIntegerOption(option => option.setName('count').setDescription('Number of messages to clear (default: all)').setMinValue(1))
+
+
+
   ];
 
   client.application.commands.set(commands);
@@ -234,47 +233,47 @@ client.on('interactionCreate', async interaction => {
   if (interaction.isCommand()) {
     const { commandName, user, options } = interaction;
 
-    if (commandName === 'daily') {
-      await interaction.deferReply();
-      const profile = await getProfile(user.id);
-      const today = new Date();
-      const lastDaily = profile.lastDaily ? new Date(profile.lastDaily) : null;
-      const streak = profile.dailyStreak || 0;
-      let newStreak = streak;
-      let reward = 50;
-      let message = '';
+    if (commandName === 'chess-challenge') {
 
-      // Check if already claimed today
-      if (lastDaily && lastDaily.toDateString() === today.toDateString()) {
-        message = `You have already claimed your daily gold today!\n\nCurrent streak: **${streak} days**.`;
-        await interaction.followUp({ content: message, flags: InteractionResponseType.Ephemeral });
-        return;
-      }
 
-      // Check if yesterday was last claim
-      const yesterday = new Date(today);
-      yesterday.setDate(today.getDate() - 1);
-      if (lastDaily && lastDaily.toDateString() === yesterday.toDateString()) {
-        newStreak = streak + 1;
-      } else {
-        newStreak = 1;
-      }
 
-      // Calculate reward: base 10, +2 per streak day up to 7 days (max 22)
-      reward = 10 + Math.min(newStreak - 1, 6) * 2;
 
-      // Update profile
-      await updateProfile(user.id, {
-        gold: (profile.gold || 0) + reward,
-        lastDaily: today.toISOString(),
-        dailyStreak: newStreak
-      });
 
-      message = `You claimed **${reward} gold** for your daily!\nStreak: **${newStreak} days**.\n\nKeep your streak going for more gold (max 7 days)!`;
-      await interaction.followUp({ content: message, flags: InteractionResponseType.Ephemeral });
-      return;
-    }
-    // ...existing code...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       const opponent = options.getUser('opponent');
       if (opponent.id === user.id) {
         await interaction.reply({ content: 'You cannot challenge yourself!', flags: InteractionResponseType.Ephemeral });
@@ -359,7 +358,7 @@ client.on('interactionCreate', async interaction => {
       const controlRow = new ActionRowBuilder().addComponents(
         new ButtonBuilder().setCustomId('surrender').setLabel('Surrender').setStyle(ButtonStyle.Danger)
       );
-      
+
       const pieceRows = [];
       for (let i = 0; i < pieceButtons.length; i += 5) {
         pieceRows.push(new ActionRowBuilder().addComponents(pieceButtons.slice(i, i + 5)));
@@ -431,17 +430,17 @@ client.on('interactionCreate', async interaction => {
       const dailyStatus = profile.lastDaily && new Date(profile.lastDaily).toDateString() === new Date().toDateString()
         ? 'Completed'
         : 'Available';
-      
+
       // Daily challenge info
       const dailyChallenge = dailyStatus === 'Available' 
         ? '🎯 **Daily Challenge:** Win a game to earn 50 gold!' 
         : '✅ **Daily Challenge:** Completed (Come back tomorrow!)';
-      
+
       // Get user's roles from the shop
       const shopItems = await getShopItems();
       const roleItems = shopItems.filter(item => item.type === 'role');
       const userRoles = [];
-      
+
       for (const item of roleItems) {
         try {
           const member = await interaction.guild.members.fetch(user.id);
@@ -452,31 +451,31 @@ client.on('interactionCreate', async interaction => {
           console.error('Error checking roles:', error);
         }
       }
-      
+
       // Build inventory display
       const boardThemes = profile.inventory?.boardThemes || ['default'];
       const pieceThemes = profile.inventory?.pieceThemes || ['unicode'];
-      
+
       let profileMessage = `**📊 ${user.username}'s Profile**\n\n`;
       profileMessage += `**💰 Gold:** ${profile.gold || 0}\n`;
       profileMessage += `**🏆 Wins:** ${profile.wins || 0}\n`;
       profileMessage += `**💔 Losses:** ${profile.losses || 0}\n\n`;
-      
+
       profileMessage += dailyChallenge + `\n\n`;
-      
+
       profileMessage += `**🎨 Active Theme:**\n`;
       profileMessage += `• Board: **${profile.boardTheme || 'default'}**\n`;
       profileMessage += `• Pieces: **${profile.pieceTheme || 'unicode'}**\n\n`;
-      
+
       profileMessage += `**🎨 Owned Themes:**\n`;
       profileMessage += `• Boards: ${boardThemes.join(', ')}\n`;
       profileMessage += `• Pieces: ${pieceThemes.join(', ')}\n`;
-      
+
       if (userRoles.length > 0) {
         profileMessage += `\n**👑 Shop Roles:**\n`;
         profileMessage += userRoles.map(role => `• ${role}`).join('\n');
       }
-      
+
       await interaction.followUp({ content: profileMessage });
     } else if (commandName === 'leaderboard') {
       await interaction.deferReply();
@@ -500,19 +499,19 @@ client.on('interactionCreate', async interaction => {
     } else if (commandName === 'buy') {
       const items = await getShopItems();
       const profile = await getProfile(user.id);
-      
+
       if (items.length === 0) {
         await interaction.reply({ content: 'The shop is currently empty!', flags: InteractionResponseType.Ephemeral });
         return;
       }
-      
+
       // Create select menu options with balance and cost info
       const options = items.map(item => {
         const canAfford = profile.gold >= item.cost;
         const emoji = canAfford ? '✅' : '❌';
         let label = `${item.name} - ${item.cost} gold`;
         if (label.length > 100) label = label.substring(0, 97) + '...';
-        
+
         return {
           label: label,
           value: item.name,
@@ -520,14 +519,14 @@ client.on('interactionCreate', async interaction => {
           emoji: emoji
         };
       });
-      
+
       const selectMenu = new StringSelectMenuBuilder()
         .setCustomId('buy_item_select')
         .setPlaceholder('Select an item to purchase')
         .addOptions(options.slice(0, 25)); // Discord limit of 25 options
-      
+
       const row = new ActionRowBuilder().addComponents(selectMenu);
-      
+
       await interaction.reply({
         content: `**Your Balance:** ${profile.gold} gold\n\nSelect an item to purchase:`,
         components: [row],
@@ -560,10 +559,10 @@ client.on('interactionCreate', async interaction => {
         await interaction.reply({ content: 'You do not have permission to use this command!', flags: InteractionResponseType.Ephemeral });
         return;
       }
-      
+
       const targetUser = options.getUser('user');
       const amount = options.getInteger('amount');
-      
+
       await addGold(targetUser.id, amount);
       await interaction.reply({ content: `Successfully gave ${amount} gold to ${targetUser.username}!`, flags: InteractionResponseType.Ephemeral });
     } else if (commandName === 'add-admin') {
@@ -572,10 +571,10 @@ client.on('interactionCreate', async interaction => {
         await interaction.reply({ content: 'Only the server owner can add admins!', flags: InteractionResponseType.Ephemeral });
         return;
       }
-      
+
       const targetUser = options.getUser('user');
       const added = await addAdmin(targetUser.id);
-      
+
       if (added) {
         await interaction.reply({ content: `${targetUser.username} has been added as a bot admin!`, flags: InteractionResponseType.Ephemeral });
       } else {
@@ -587,10 +586,10 @@ client.on('interactionCreate', async interaction => {
         await interaction.reply({ content: 'Only the server owner can remove admins!', flags: InteractionResponseType.Ephemeral });
         return;
       }
-      
+
       const targetUser = options.getUser('user');
       const removed = await removeAdmin(targetUser.id);
-      
+
       if (removed) {
         await interaction.reply({ content: `${targetUser.username} has been removed as a bot admin!`, flags: InteractionResponseType.Ephemeral });
       } else {
@@ -598,7 +597,7 @@ client.on('interactionCreate', async interaction => {
       }
     } else if (commandName === 'list-admins') {
       const adminIds = await listAdmins();
-      
+
       if (adminIds.length === 0) {
         await interaction.reply({ content: 'No bot admins set. The server owner always has admin privileges.', flags: InteractionResponseType.Ephemeral });
       } else {
@@ -609,11 +608,11 @@ client.on('interactionCreate', async interaction => {
       await interaction.deferReply();
       const adminIds = await listAdmins();
       const guild = interaction.guild;
-      
+
       // Build embed-style message with all admin info
       let adminInfo = `**🛡️ Server Admin Panel**\n\n`;
       adminInfo += `**Server Owner:**\n<@${guild.ownerId}> (Always has admin privileges)\n\n`;
-      
+
       if (adminIds.length === 0) {
         adminInfo += `**Bot Admins:** None\n\nUse \`/add-admin\` to add bot admins.`;
       } else {
@@ -627,35 +626,35 @@ client.on('interactionCreate', async interaction => {
           }
         }
       }
-      
+
       adminInfo += `\n**Admin Privileges:**\n`;
       adminInfo += `✓ Give gold to users\n`;
       adminInfo += `✓ Manage shop items\n`;
       adminInfo += `✓ Start tournaments early\n`;
-      
+
       await interaction.followUp({ content: adminInfo });
     } else if (commandName === 'set-board-theme') {
       const theme = options.getString('theme');
       const profile = await getProfile(user.id);
-      
+
       // Check if user owns this theme
       if (!profile.inventory.boardThemes.includes(theme)) {
         await interaction.reply({ content: `You don't own this board theme! Purchase it from the shop first using \`/buy\`.`, flags: InteractionResponseType.Ephemeral });
         return;
       }
-      
+
       await updateProfile(user.id, { boardTheme: theme });
       await interaction.reply({ content: `Board theme changed to **${theme}**!`, flags: InteractionResponseType.Ephemeral });
     } else if (commandName === 'set-piece-theme') {
       const theme = options.getString('theme');
       const profile = await getProfile(user.id);
-      
+
       // Check if user owns this theme
       if (!profile.inventory.pieceThemes.includes(theme)) {
         await interaction.reply({ content: `You don't own this piece theme! Purchase it from the shop first using \`/buy\`.`, flags: InteractionResponseType.Ephemeral });
         return;
       }
-      
+
       await updateProfile(user.id, { pieceTheme: theme });
       await interaction.reply({ content: `Piece theme changed to **${theme}**!`, flags: InteractionResponseType.Ephemeral });
     } else if (commandName === 'add-shop-item') {
@@ -665,11 +664,11 @@ client.on('interactionCreate', async interaction => {
         await interaction.reply({ content: 'You do not have permission to use this command!', flags: InteractionResponseType.Ephemeral });
         return;
       }
-      
+
       const name = options.getString('name');
       const cost = options.getInteger('cost');
       const role = options.getRole('role');
-      
+
       const result = await addShopItem(name, cost, 'role', role.id);
       await interaction.reply({ content: result.message, flags: InteractionResponseType.Ephemeral });
     } else if (commandName === 'remove-shop-item') {
@@ -679,7 +678,7 @@ client.on('interactionCreate', async interaction => {
         await interaction.reply({ content: 'You do not have permission to use this command!', flags: InteractionResponseType.Ephemeral });
         return;
       }
-      
+
       const name = options.getString('name');
       const result = await removeShopItem(name);
       await interaction.reply({ content: result.message, flags: InteractionResponseType.Ephemeral });
@@ -690,7 +689,7 @@ client.on('interactionCreate', async interaction => {
         await interaction.reply({ content: 'You do not have permission to use this command!', flags: InteractionResponseType.Ephemeral });
         return;
       }
-      
+
       const channel = options.getChannel('channel');
       await setArchiveChannel(channel.id);
       await interaction.reply({ content: `Archive channel set to <#${channel.id}>!`, flags: InteractionResponseType.Ephemeral });
@@ -701,23 +700,23 @@ client.on('interactionCreate', async interaction => {
         await interaction.reply({ content: 'You do not have permission to use this command!', flags: InteractionResponseType.Ephemeral });
         return;
       }
-      
+
       await interaction.deferReply({ flags: InteractionResponseType.Ephemeral });
-      
+
       const archiveChannelId = await getArchiveChannel();
       if (!archiveChannelId) {
         await interaction.followUp({ content: 'No archive channel set! Use `/set-archive-channel` first.', flags: InteractionResponseType.Ephemeral });
         return;
       }
-      
+
       const count = options.getInteger('count');
       const archiveChannel = await interaction.guild.channels.fetch(archiveChannelId);
-      
+
       if (!archiveChannel) {
         await interaction.followUp({ content: 'Archive channel not found!', flags: InteractionResponseType.Ephemeral });
         return;
       }
-      
+
       try {
         if (count) {
           // Delete specific number of messages
@@ -744,13 +743,13 @@ client.on('interactionCreate', async interaction => {
     }
   } else if (interaction.isStringSelectMenu()) {
     const { customId, user, values } = interaction;
-    
+
     if (customId === 'buy_item_select') {
       await interaction.deferReply({ flags: InteractionResponseType.Ephemeral });
       const itemName = values[0];
       const result = await buyItem(user, interaction.guild, itemName);
       await interaction.followUp({ content: result, flags: InteractionResponseType.Ephemeral });
-      
+
       // Update the original message to remove the select menu
       await interaction.message.edit({ components: [] });
     }
@@ -760,28 +759,28 @@ client.on('interactionCreate', async interaction => {
     if (customId.startsWith('join_open_')) {
       const openGameId = customId.replace('join_open_', '');
       const openGame = openGames.get(openGameId);
-      
+
       if (!openGame) {
         await interaction.reply({ content: 'This game is no longer available!', flags: InteractionResponseType.Ephemeral });
         return;
       }
-      
+
       if (user.id === openGame.creator) {
         await interaction.reply({ content: 'You cannot join your own game!', flags: InteractionResponseType.Ephemeral });
         return;
       }
-      
+
       if (games.has(user.id) || games.has(openGame.creator)) {
         await interaction.reply({ content: 'One of you is already in a game!', flags: InteractionResponseType.Ephemeral });
         return;
       }
-      
+
       // Defer update immediately to prevent timeout
       await interaction.deferUpdate();
-      
+
       // Remove from open games
       openGames.delete(openGameId);
-      
+
       // Create game thread
       const thread = await openGame.channel.threads.create({
         name: `Chess: <@${openGame.creator}> vs <@${user.id}>`,
@@ -800,7 +799,7 @@ client.on('interactionCreate', async interaction => {
         new ButtonBuilder().setCustomId('draw').setLabel('Offer Draw').setStyle(ButtonStyle.Secondary),
         new ButtonBuilder().setCustomId('surrender').setLabel('Surrender').setStyle(ButtonStyle.Danger)
       );
-      
+
       const pieceRows = [];
       for (let i = 0; i < pieceButtons.length; i += 5) {
         pieceRows.push(new ActionRowBuilder().addComponents(pieceButtons.slice(i, i + 5)));
@@ -819,17 +818,17 @@ client.on('interactionCreate', async interaction => {
     } else if (customId.startsWith('cancel_open_')) {
       const openGameId = customId.replace('cancel_open_', '');
       const openGame = openGames.get(openGameId);
-      
+
       if (!openGame) {
         await interaction.reply({ content: 'This game is no longer available!', flags: InteractionResponseType.Ephemeral });
         return;
       }
-      
+
       if (user.id !== openGame.creator) {
         await interaction.reply({ content: 'Only the game creator can cancel it!', flags: InteractionResponseType.Ephemeral });
         return;
       }
-      
+
       openGames.delete(openGameId);
       await interaction.update({
         content: `Game canceled by <@${user.id}>`,
@@ -870,7 +869,7 @@ client.on('interactionCreate', async interaction => {
         new ButtonBuilder().setCustomId('draw').setLabel('Offer Draw').setStyle(ButtonStyle.Secondary),
         new ButtonBuilder().setCustomId('surrender').setLabel('Surrender').setStyle(ButtonStyle.Danger)
       );
-      
+
       const pieceRows = [];
       for (let i = 0; i < pieceButtons.length; i += 5) {
         pieceRows.push(new ActionRowBuilder().addComponents(pieceButtons.slice(i, i + 5)));
@@ -887,20 +886,20 @@ client.on('interactionCreate', async interaction => {
       await interaction.reply({ content: 'Challenge declined!', flags: InteractionResponseType.Ephemeral });
     } else if (customId.startsWith('select_piece_')) {
       await interaction.deferUpdate();
-      
+
       const pieceType = customId.replace('select_piece_', '');
       const game = games.get(user.id);
-      
+
       if (!game) {
         await interaction.followUp({ content: 'No active game found!', flags: InteractionResponseType.Ephemeral });
         return;
       }
-      
+
       if (game.currentTurn !== user.id) {
         await interaction.followUp({ content: "It's not your turn!", flags: InteractionResponseType.Ephemeral });
         return;
       }
-      
+
       // Get all squares where this piece type can move from
       const moves = game.chess.moves({ verbose: true });
       const fromSquares = new Set();
@@ -909,28 +908,28 @@ client.on('interactionCreate', async interaction => {
           fromSquares.add(move.from);
         }
       });
-      
+
       // Create move buttons for this specific piece
       const moveButtons = createMoveButtonsForPiece(game.chess, pieceType, fromSquares);
       const backButton = new ButtonBuilder()
         .setCustomId('back_to_pieces')
         .setLabel('← Back')
         .setStyle(ButtonStyle.Secondary);
-      
+
       const controlRow = new ActionRowBuilder().addComponents(
         backButton,
         new ButtonBuilder().setCustomId('surrender').setLabel('Surrender').setStyle(ButtonStyle.Danger)
       );
-      
+
       if (!game.isAI) {
         controlRow.addComponents(new ButtonBuilder().setCustomId('draw').setLabel('Offer Draw').setStyle(ButtonStyle.Secondary));
       }
-      
+
       const moveRows = [];
       for (let i = 0; i < moveButtons.length && moveRows.length < 4; i += 5) {
         moveRows.push(new ActionRowBuilder().addComponents(moveButtons.slice(i, Math.min(i + 5, moveButtons.length))));
       }
-      
+
       const pieceNames = {
         'P': 'Pawn',
         'N': 'Knight',
@@ -939,44 +938,44 @@ client.on('interactionCreate', async interaction => {
         'Q': 'Queen',
         'K': 'King'
       };
-      
+
       await interaction.editReply({
         content: `${interaction.message.content.split('\\n\\n')[0]}\\n\\n**${pieceNames[pieceType]} moves:**`,
         components: [...moveRows, controlRow]
       });
     } else if (customId === 'back_to_pieces') {
       await interaction.deferUpdate();
-      
+
       const game = games.get(user.id);
-      
+
       if (!game) {
         await interaction.followUp({ content: 'No active game found!', flags: InteractionResponseType.Ephemeral });
         return;
       }
-      
+
       // Show piece selection again
       const pieces = getMovablePieces(game.chess, user.id, game);
       const pieceButtons = createPieceButtons(pieces);
       const controlRow = new ActionRowBuilder().addComponents(
         new ButtonBuilder().setCustomId('surrender').setLabel('Surrender').setStyle(ButtonStyle.Danger)
       );
-      
+
       if (!game.isAI) {
         controlRow.addComponents(new ButtonBuilder().setCustomId('draw').setLabel('Offer Draw').setStyle(ButtonStyle.Secondary));
       }
-      
+
       const pieceRows = [];
       for (let i = 0; i < pieceButtons.length; i += 5) {
         pieceRows.push(new ActionRowBuilder().addComponents(pieceButtons.slice(i, i + 5)));
       }
-      
+
       await interaction.editReply({
         content: `${interaction.message.content.split('\\n\\n')[0]}\\n\\n**Select a piece to move:**`,
         components: [...pieceRows, controlRow]
       });
     } else if (customId.startsWith('move_')) {
       await interaction.deferReply({ flags: InteractionResponseType.Ephemeral });
-      
+
       const [, from, to] = customId.split('_');
       const game = games.get(user.id);
       if (!game) {
@@ -995,7 +994,7 @@ client.on('interactionCreate', async interaction => {
       }
 
       const boardImage = await renderBoard(game.chess.fen(), game.currentTurn);
-      
+
       // Get piece selection buttons for the next turn
       const pieces = getMovablePieces(game.chess, game.currentTurn, game);
       const pieceButtons = createPieceButtons(pieces);
@@ -1005,7 +1004,7 @@ client.on('interactionCreate', async interaction => {
       if (!game.isAI) {
         controlRow.addComponents(new ButtonBuilder().setCustomId('draw').setLabel('Offer Draw').setStyle(ButtonStyle.Secondary));
       }
-      
+
       const pieceRows = [];
       for (let i = 0; i < pieceButtons.length; i += 5) {
         pieceRows.push(new ActionRowBuilder().addComponents(pieceButtons.slice(i, i + 5)));
@@ -1028,7 +1027,7 @@ client.on('interactionCreate', async interaction => {
           games.delete(game.white);
           games.delete(game.black);
           content += `\nCheckmate! <@${winner}> wins!`;
-          
+
           // Archive and schedule thread deletion
           await archiveAndDeleteThread(interaction.message.channel, interaction.guild, {
             players: `<@${game.white}> vs <@${game.black}>`,
@@ -1039,7 +1038,7 @@ client.on('interactionCreate', async interaction => {
           await addGold(user.id, 50);
           games.delete(user.id);
           content += `\nCheckmate! <@${user.id}> wins!`;
-          
+
           // Archive and schedule thread deletion
           await archiveAndDeleteThread(interaction.message.channel, interaction.guild, {
             players: `<@${user.id}> vs AI`,
@@ -1053,7 +1052,7 @@ client.on('interactionCreate', async interaction => {
           games.delete(game.white);
           games.delete(game.black);
           content += '\nGame is a draw!';
-          
+
           // Archive and schedule thread deletion
           await archiveAndDeleteThread(interaction.message.channel, interaction.guild, {
             players: `<@${game.white}> vs <@${game.black}>`,
@@ -1063,7 +1062,7 @@ client.on('interactionCreate', async interaction => {
           await addGold(user.id, 10);
           games.delete(user.id);
           content += '\nGame is a draw!';
-          
+
           // Archive and schedule thread deletion
           await archiveAndDeleteThread(interaction.message.channel, interaction.guild, {
             players: `<@${user.id}> vs AI`,
@@ -1073,7 +1072,7 @@ client.on('interactionCreate', async interaction => {
       } else if (result.check) {
         content += '\nCheck!';
       }
-      
+
       // Add piece selection instruction if game continues
       if (!result.checkmate && !result.draw) {
         content += '\n\n**Select a piece to move:**';
@@ -1104,14 +1103,14 @@ client.on('interactionCreate', async interaction => {
             };
 
             const aiBoardImage = await renderBoard(game.chess.fen(), user.id);
-            
+
             // Get piece selection for user's next move
             const pieces = getMovablePieces(game.chess, user.id, game);
             const pieceButtons = createPieceButtons(pieces);
             const aiControlRow = new ActionRowBuilder().addComponents(
               new ButtonBuilder().setCustomId('surrender').setLabel('Surrender').setStyle(ButtonStyle.Danger)
             );
-            
+
             const aiPieceRows = [];
             for (let i = 0; i < pieceButtons.length; i += 5) {
               aiPieceRows.push(new ActionRowBuilder().addComponents(pieceButtons.slice(i, i + 5)));
@@ -1179,7 +1178,7 @@ client.on('interactionCreate', async interaction => {
         components: []
       });
       await interaction.reply({ content: 'Draw accepted!', flags: InteractionResponseType.Ephemeral });
-      
+
       // Archive and schedule thread deletion
       await archiveAndDeleteThread(interaction.message.channel, interaction.guild, {
         players: `<@${game.white}> vs <@${game.black}>`,
@@ -1215,7 +1214,7 @@ client.on('interactionCreate', async interaction => {
         components: []
       });
       await interaction.reply({ content: 'You surrendered!', flags: InteractionResponseType.Ephemeral });
-      
+
       // Archive and schedule thread deletion
       await archiveAndDeleteThread(interaction.message.channel, interaction.guild, {
         players: `<@${game.white}> vs <@${game.black}>`,
@@ -1232,7 +1231,7 @@ client.on('interactionCreate', async interaction => {
         await interaction.reply({ content: 'No active game found!', flags: InteractionResponseType.Ephemeral });
         return;
       }
-      
+
       // End the game without winner/loser
       games.delete(game.white);
       games.delete(game.black);
@@ -1424,21 +1423,4 @@ http.createServer((req, res) => {
   res.end('Discord Chess Bot is running.');
 }).listen(PORT, () => {
   console.log(`HTTP server listening on port ${PORT}`);
-});
-
-// Self-ping mechanism to keep bot awake on Render
-import fetch from 'node-fetch';
-const SELF_URL = process.env.SELF_URL || `http://localhost:${PORT}`;
-setInterval(() => {
-  fetch(SELF_URL)
-    .then(res => {
-      if (res.ok) {
-        console.log('Self-ping successful');
-      } else {
-        console.warn('Self-ping failed:', res.status);
-      }
-    })
-    .catch(err => {
-      console.warn('Self-ping error:', err.message);
-    });
-}, 5 * 60 * 1000); // Ping every 5 minutes
+});     
