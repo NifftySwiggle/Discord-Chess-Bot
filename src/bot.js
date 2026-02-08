@@ -219,7 +219,10 @@ client.once('clientReady', () => {
     new SlashCommandBuilder()
       .setName('clear-archives')
       .setDescription('Clear archived games (Admin only)')
-      .addIntegerOption(option => option.setName('count').setDescription('Number of messages to clear (default: all)').setMinValue(1))
+      .addIntegerOption(option => option.setName('count').setDescription('Number of messages to clear (default: all)').setMinValue(1)),
+    new SlashCommandBuilder()
+      .setName('daily')
+      .setDescription('Claim your daily gold and streak reward')
   ];
 
   client.application.commands.set(commands);
@@ -231,7 +234,47 @@ client.on('interactionCreate', async interaction => {
   if (interaction.isCommand()) {
     const { commandName, user, options } = interaction;
 
-    if (commandName === 'chess-challenge') {
+    if (commandName === 'daily') {
+      await interaction.deferReply();
+      const profile = await getProfile(user.id);
+      const today = new Date();
+      const lastDaily = profile.lastDaily ? new Date(profile.lastDaily) : null;
+      const streak = profile.dailyStreak || 0;
+      let newStreak = streak;
+      let reward = 50;
+      let message = '';
+
+      // Check if already claimed today
+      if (lastDaily && lastDaily.toDateString() === today.toDateString()) {
+        message = `You have already claimed your daily gold today!\n\nCurrent streak: **${streak} days**.`;
+        await interaction.followUp({ content: message, flags: InteractionResponseType.Ephemeral });
+        return;
+      }
+
+      // Check if yesterday was last claim
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
+      if (lastDaily && lastDaily.toDateString() === yesterday.toDateString()) {
+        newStreak = streak + 1;
+      } else {
+        newStreak = 1;
+      }
+
+      // Calculate reward: base 10, +2 per streak day up to 7 days (max 22)
+      reward = 10 + Math.min(newStreak - 1, 6) * 2;
+
+      // Update profile
+      await updateProfile(user.id, {
+        gold: (profile.gold || 0) + reward,
+        lastDaily: today.toISOString(),
+        dailyStreak: newStreak
+      });
+
+      message = `You claimed **${reward} gold** for your daily!\nStreak: **${newStreak} days**.\n\nKeep your streak going for more gold (max 7 days)!`;
+      await interaction.followUp({ content: message, flags: InteractionResponseType.Ephemeral });
+      return;
+    }
+    // ...existing code...
       const opponent = options.getUser('opponent');
       if (opponent.id === user.id) {
         await interaction.reply({ content: 'You cannot challenge yourself!', flags: InteractionResponseType.Ephemeral });
@@ -1382,3 +1425,20 @@ http.createServer((req, res) => {
 }).listen(PORT, () => {
   console.log(`HTTP server listening on port ${PORT}`);
 });
+
+// Self-ping mechanism to keep bot awake on Render
+import fetch from 'node-fetch';
+const SELF_URL = process.env.SELF_URL || `http://localhost:${PORT}`;
+setInterval(() => {
+  fetch(SELF_URL)
+    .then(res => {
+      if (res.ok) {
+        console.log('Self-ping successful');
+      } else {
+        console.warn('Self-ping failed:', res.status);
+      }
+    })
+    .catch(err => {
+      console.warn('Self-ping error:', err.message);
+    });
+}, 5 * 60 * 1000); // Ping every 5 minutes
