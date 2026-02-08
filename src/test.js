@@ -8,7 +8,7 @@ import path from 'path';
   await page.setContent(htmlContent.replace('{{theme}}', 'default'));
   await page.addScriptTag({ path: path.join(__dirname, '../node_modules/chessboardjs/dist/chessboard-1.0.0.min.js') });
   await page.waitForFunction('typeof Chessboard === "function"', { timeout: 10000 });
-  await page.evaluate((fen, theme, unicodePieces) => {
+  await page.evaluate(({ fen, theme, unicodePieces }) => {
     const board = Chessboard('board', { position: fen });
     document.querySelectorAll('.piece').forEach(pieceElement => {
       const piece = pieceElement.getAttribute('data-piece');
@@ -18,9 +18,13 @@ import path from 'path';
       }
     });
     document.getElementById('board').className = 'board-theme-' + theme;
-  }, 'rnbqkbnr/pppppppp/5n5/8/8/5N5/PPPPPPPP/RNBQKBNR w KQkq - 0 1', 'default', {
-    'wK': '♔', 'wQ': '♕', 'wR': '♖', 'wB': '♗', 'wN': '♘', 'wP': '♙',
-    'bK': '♚', 'bQ': '♛', 'bR': '♜', 'bB': '♝', 'bN': '♞', 'bP': '♟'
+  }, {
+    fen: 'rnbqkbnr/pppppppp/5n5/8/8/5N5/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+    theme: 'default',
+    unicodePieces: {
+      'wK': '♔', 'wQ': '♕', 'wR': '♖', 'wB': '♗', 'wN': '♘', 'wP': '♙',
+      'bK': '♚', 'bQ': '♛', 'bR': '♜', 'bB': '♝', 'bN': '♞', 'bP': '♟'
+    }
   });
   await page.waitForTimeout(1000);
   await page.screenshot({ path: 'test.png' });
