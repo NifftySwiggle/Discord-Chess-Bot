@@ -159,7 +159,7 @@ async function renderBoard(fen, userId) {
         throw new Error('Chess libraries failed to load');
       });
 
-    await page.evaluate((fen, theme, pieceTheme, pieceImageMap) => {
+    await page.evaluate(({ fen, theme, pieceTheme, pieceImageMap }) => {
       try {
         const unicodePieces = {
           'wK': '♔', 'wQ': '♕', 'wR': '♖', 'wB': '♗', 'wN': '♘', 'wP': '♙',
@@ -256,7 +256,7 @@ async function renderBoard(fen, userId) {
       } catch (err) {
         throw new Error('Chessboard evaluation error: ' + err.message);
       }
-    }, fen, theme, pieceTheme, pieceImageMap);
+    }, { fen, theme, pieceTheme, pieceImageMap });
 
     // Wait briefly for rendering
     await new Promise(resolve => setTimeout(resolve, 200));
