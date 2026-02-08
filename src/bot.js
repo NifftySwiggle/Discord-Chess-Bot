@@ -1374,7 +1374,7 @@ client.on('interactionCreate', async interaction => {
 client.login(process.env.DISCORD_BOT_TOKEN);
 
 // Minimal HTTP server for Render free web service
-const http = require('http');
+import http from 'http';
 const PORT = process.env.PORT || 3000;
 http.createServer((req, res) => {
   res.writeHead(200, { 'Content-Type': 'text/plain' });
